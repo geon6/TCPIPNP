@@ -3,21 +3,23 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define BUF_SIZE 100
+
 void error_handling(char *message);
 
 int main(int argc, char *argv[]) {
     int fd;
-    char buf[] = "Let's go!\n";
+    char buf[BUF_SIZE];
 
-    fd = open("./ch1/data.txt", O_CREAT | O_WRONLY | O_TRUNC);
-    if (fd == -1)
+    fd = open("./ch1/data.txt", O_RDONLY);
+    if (fd == -1) 
         error_handling("open() error!");
     printf("file descriptor: %d\n", fd);
 
-    if (write(fd, buf, sizeof(buf)) == -1)
-        error_handling("write() error!");
+    if (read(fd, buf, sizeof(buf)) == -1)
+        error_handling("read() error!");
+    printf("file data: %s", buf);
     close(fd);
-    return 0;
 }
 
 void error_handling(char *message) {
