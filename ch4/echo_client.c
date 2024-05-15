@@ -7,51 +7,47 @@
 
 #define BUF_SIZE 1024
 
-void error_handling(char *message);
+void error_handling(const char *msg);
 
 int main(int argc, char *argv[]) {
-    int sock;
-    char message[BUF_SIZE];
-    int str_len;
+    int serv_sock;
+    char buf[BUF_SIZE];
     struct sockaddr_in serv_addr;
+    int str_len;
 
     if (argc != 3) {
-        printf("Usage: %s <IP> <port>\n", argv[0]);
+        printf("Usage: %s <ip> <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
+    serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+    if (serv_sock == -1)
         error_handling("socket() error");
     
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = PF_INET;
     serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
     serv_addr.sin_port = htons(atoi(argv[2]));
-
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1) 
+    if (connect(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1)
         error_handling("connect() error");
-    else
-        puts("Connected......");
     
     while (1) {
         fputs("Input message(Q to quit): ", stdout);
-        fgets(message, BUF_SIZE, stdin);
+        fgets(buf, BUF_SIZE, stdin);
 
-        if (!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
+        if (strcmp(buf, "q\n") == 0 || !strcmp(buf, "Q\n") == 0) 
             break;
         
-        write(sock, message, strlen(message));
-        str_len = read(sock, message, BUF_SIZE - 1);
-        message[str_len] = 0;
-        printf("Message from server: %s", message);
+        write(serv_sock, buf, strlen(buf));
+        str_len = read(serv_sock, buf, BUF_SIZE - 1);
+        buf[str_len] = 0;
+        printf("Message from server: %s", buf);
     }
-    close(sock);
-    return 0;
+    close(serv_sock);
 }
 
-void error_handling(char *message) {
-    fputs(message, stderr);
+void error_handling(const char *msg) {
+    fputs(msg, stderr);
     fputc('\n', stderr);
     exit(EXIT_FAILURE);
 }
