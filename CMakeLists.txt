@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 3.21)
-project(TCPIPNP LANGUAGES C)
+cmake_minimum_required(VERSION 3.28)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(TCPIPNP)
 
 add_subdirectory(ch1)
 add_subdirectory(ch2)
 add_subdirectory(ch3)
 add_subdirectory(ch4)
+add_subdirectory(ch5)
