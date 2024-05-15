@@ -12,6 +12,17 @@
 
 void error_handling(const std::string& msg);
 
+using byte = unsigned char;
+
+template<typename T>
+void print_bytes(T t) {
+    byte* b = (byte*) &t;    
+    for (int i = 0; i < sizeof(T); i++) {
+        printf("%.2x", b[i]);
+    }
+    std::cout << std::endl;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <port>" << std::endl;
@@ -39,39 +50,32 @@ int main(int argc, char *argv[]) {
     int client_socket = accept(server_socket, reinterpret_cast<sockaddr*>(&client_address), &client_address_size);
     if (client_socket == -1) 
         error_handling("accept() error");
-    
+
+    // read data
+    int r, net, operand_count, offset = sizeof(int);
     char buf[BUF_SIZE];
-    int r;
-
-    // read operand count
-    int operand_count;
     r = read(client_socket, buf, BUF_SIZE - 1);
-    if (r == -1) 
-        error_handling("read operand count error");
+    // for (int i = 0; i < r; i++) {
+    //     print_bytes(buf[i]);
+    // }
+    std::cout << "r: " << r << std::endl;
+    if (r == -1)
+        error_handling("read error");
     buf[r] = 0;
-    operand_count = ntohl(atoi(buf));
+    memcpy(&net, &buf[0], sizeof(int));
+    operand_count = ntohl(net);
     std::cout << "read operand count: " << operand_count << std::endl;
-
-    // read operands
     std::vector<int> operands(operand_count, 0);
     for (int i = 0; i < operand_count; i++) {
-        r = read(client_socket, buf, BUF_SIZE - 1);
-        if (r == -1)
-            error_handling("read operand error");
-        buf[r] = 0;
-        operands[i] = ntohl(atoi(buf));
+        memcpy(&net, &buf[4 + sizeof(int) * i], sizeof(int));
+        operands[i] = ntohl(net);
         std::cout << "read operand: " << operands[i] << std::endl;
     }
-
-    // read operator
-    char op;
-    r = read(client_socket, &op, 1);
-    if (r == -1) 
-        error_handling("read operator error");
+    char op = buf[r - 1];
     std::cout << "read operator: " << op << std::endl;
 
     // compute 
-    int result, net;
+    int result;
     if (op == '+') {
         result = 0;
         for (int i = 0; i < operand_count; i++) {

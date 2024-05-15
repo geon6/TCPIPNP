@@ -14,6 +14,17 @@
 
 void error_handling(const std::string& msg);
 
+using byte = unsigned char;
+
+template<typename T>
+void print_bytes(T t) {
+    byte* b = (byte*) &t;    
+    for (int i = 0; i < sizeof(T); i++) {
+        printf("%.2x", b[i]);
+    }
+    std::cout << std::endl;
+}
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <ip> <port>" << std::endl;
@@ -52,30 +63,29 @@ int main(int argc, char *argv[]) {
     std::cin >> op;
 
     // send to server
-    int w, net;
+    char buf[BUF_SIZE];
+    memset(buf, 0, BUF_SIZE);
+    int w, net, buf_len = 0, offset = sizeof(int);
     net = htonl(operand_count);
-    w = write(sock, &net, sizeof(net));
-    if (w == -1)
-        error_handling("write operand count error");
-
+    memcpy(&buf[0], &net, sizeof(int));
     for (int i = 0; i < operand_count; i++) {
         net = htonl(operands[i]);
-        w = write(sock, &net, sizeof(net));
-        if (w == -1)
-            error_handling("write operand error");
+        memcpy(&buf[4 + i * offset], &net, sizeof(int));
     }
-    w = write(sock, &op, sizeof(op));
-    if (w == -1)
-        error_handling("write operator error");
+    buf[offset * (operand_count + 1)] = op;
+
+    // for (int i = 0; i < offset * (operand_count + 1) + 1; i++) {
+    //     print_bytes<char>(buf[i]);
+    // }
+
+    w = write(sock, buf, offset * (operand_count + 1) + 1);
 
     // output result
     int r, result;
-    char buf[BUF_SIZE];
-    r = read(sock, buf, BUF_SIZE);
+    r = read(sock, &result, sizeof(int));
+    result = ntohl(result);
     if (r == -1)
         error_handling("read result error");
-    buf[r] = 0;
-    result = atoi(buf);
     std::cout << "Operation result: " << result << std::endl;
 }
 
