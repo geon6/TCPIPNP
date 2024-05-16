@@ -1,0 +1,2 @@
+add_executable(uecho_server uecho_server.cpp)
+add_executable(uecho_client uecho_client.cpp)
