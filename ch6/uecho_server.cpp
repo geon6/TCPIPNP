@@ -14,7 +14,7 @@ void error_handling(const char *message);
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("Usage: %s <port>\n", argv[0]);
+        printf("Usage: %s <port> \n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = htons(atoi(argv[1]));
 
-    if (bind(server_socket, reinterpret_cast<sockaddr*>(&server_address), sizeof(server_address)) == -1) 
+    if (bind(server_socket, reinterpret_cast<sockaddr*>(&server_address), sizeof(server_address)) == -1)
         error_handling("bind() error");
     
     sockaddr_in client_address;
@@ -37,8 +37,10 @@ int main(int argc, char *argv[]) {
     char message[BUF_SIZE];
     while (1) {
         client_address_size = sizeof(client_address);
-        str_len = recvfrom(server_socket, message, BUF_SIZE, 0, reinterpret_cast<sockaddr*>(&client_address), &client_address_size);
-        sendto(server_socket, message, str_len, 0, reinterpret_cast<sockaddr*>(&client_address), client_address_size);
+        str_len = recvfrom(server_socket, message, BUF_SIZE, 0,
+            reinterpret_cast<sockaddr*>(&client_address), &client_address_size);
+        sendto(server_socket, message, str_len, 0,
+            reinterpret_cast<sockaddr*>(&client_address), client_address_size);
     }
     close(server_socket);
 }
