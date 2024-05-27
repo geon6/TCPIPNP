@@ -1,0 +1,2 @@
+add_executable(gethostbyname gethostbyname.cpp)
+add_executable(gethostbyaddr gethostbyaddr.cpp)
