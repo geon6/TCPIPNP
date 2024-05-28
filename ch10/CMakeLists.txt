@@ -1,0 +1,7 @@
+add_executable(fork fork.cpp)
+add_executable(zombie zombie.cpp)
+add_executable(wait wait.cpp)
+add_executable(waitpid waitpid.cpp)
+add_executable(signal signal.cpp)
+add_executable(sigaction sigaction.cpp)
+add_executable(remove_zombie remove_zombie.cpp)
