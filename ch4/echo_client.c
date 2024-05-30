@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         fputs("Input message(Q to quit): ", stdout);
         fgets(buf, BUF_SIZE, stdin);
 
-        if (strcmp(buf, "q\n") == 0 || !strcmp(buf, "Q\n") == 0) 
+        if (strcmp(buf, "q\n") == 0 || strcmp(buf, "Q\n") == 0) 
             break;
         
         write(serv_sock, buf, strlen(buf));
