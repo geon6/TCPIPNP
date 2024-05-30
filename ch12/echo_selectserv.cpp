@@ -42,17 +42,18 @@ int main(int argc, char* argv[]) {
     fd_set read_set;
     FD_ZERO(&read_set);
     FD_SET(server_socket, &read_set);
+
     int fd_max = server_socket;
     char buf[BUF_SIZE];
+
     while (true) {
         fd_set copy = read_set;
         struct timeval timeout{.tv_sec = 5, .tv_usec = 5000};
-
-        int fd_num = select(fd_max + 1, &read_set, NULL, NULL, &timeout);
-        if (fd_num == -1) {
-            break;
+        int fd = select(fd_max + 1, &copy, NULL, NULL, &timeout);
+        if (fd == -1) {
+            error_handling("select() error");
         }
-        if (fd_num == 0) {
+        if (fd == 0) {
             continue;
         }
 
@@ -60,20 +61,24 @@ int main(int argc, char* argv[]) {
             if (!FD_ISSET(i, &copy)) {
                 continue;
             }
-            if (i == server_socket) { // connection request
+            if (i == server_socket) { // new connection
                 struct sockaddr_in client_address;
-                socklen_t client_address_size = sizeof(client_address);
-                int client_socket = accept(server_socket, (struct sockaddr*)&client_address, &client_address_size);
+                socklen_t client_address_len = sizeof(client_address);
+                int client_socket = accept(server_socket, (struct sockaddr*)&client_address, &client_address_len);
+                if (client_socket == -1) {
+                    error_handling("accept() error");
+                }
                 FD_SET(client_socket, &read_set);
                 fd_max = std::max(fd_max, client_socket);
-                std::cout << "connected client: " << client_socket << std::endl;
-            } else { // read message
-                int str_len = read(i, buf, BUF_SIZE);
-                if (str_len == 0) {
+                std::cout << "new client: " << client_socket << std::endl;
+            } else {
+                int len = read(i, buf, BUF_SIZE);
+                if (len == 0) {
                     FD_CLR(i, &read_set);
                     close(i);
+                    std::cout << "close client: " << i << std::endl;
                 } else {
-                    write(i, buf, str_len);
+                    write(i, buf, len);
                 }
             }
         }
