@@ -10,9 +10,11 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define BUF_SIZE 1024
+#include <fmt/format.h>
 
-void error_handling(const std::string& msg);
+constexpr int BUF_SIZE = 1024;
+
+void error_handling(std::string_view msg);
 
 using byte = unsigned char;
 
@@ -25,41 +27,45 @@ void print_bytes(T t) {
     std::cout << std::endl;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <ip> <port>" << std::endl;
+        fmt::println("Usage: {} <ip> <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     int sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (sock == -1)
+    if (sock == -1) {
         error_handling("socket() error");
+    }
     
-    sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(argv[1]);
-    addr.sin_port = htons(atoi(argv[2]));
-    if (connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) 
+    struct sockaddr_in addr{
+        .sin_family = AF_INET,
+        .sin_port = htons(atoi(argv[2])),
+        .sin_addr = in_addr{inet_addr(argv[1])},
+        .sin_zero = {0}
+    };
+
+    if (connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
         error_handling("connect() error");
-    else
-        std::cout << "Connected......" << std::endl;
+    } else {
+        fmt::println("Connected......");
+    }
 
     // input operand count
     int operand_count;
-    std::cout << "Operand count: ";
+    fmt::print("Operand count: ");
     std::cin >> operand_count;
 
     // input operands
     std::vector<int> operands(operand_count, 0);
     for (int i = 0; i < operand_count; i++) {
-        std::cout << "Operand " << i + 1 << ": ";
+        fmt::print("Operand {}: ", i + 1);
         std::cin >> operands[i];
     }
 
     // input operator
     char op;
-    std::cout << "Operator: ";
+    fmt::print("Operator: ");
     std::cin >> op;
 
     // send to server
@@ -84,12 +90,13 @@ int main(int argc, char *argv[]) {
     int r, result;
     r = read(sock, &result, sizeof(int));
     result = ntohl(result);
-    if (r == -1)
+    if (r == -1) {
         error_handling("read result error");
-    std::cout << "Operation result: " << result << std::endl;
+    }
+    fmt::println("Operation result: {}", result);
 }
 
-void error_handling(const std::string& msg) {
-    perror(msg.c_str());
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
