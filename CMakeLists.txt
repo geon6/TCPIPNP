@@ -3,6 +3,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(TCPIPNP)
 
+include_directories(include)
+
+add_compile_definitions(FMT_HEADER_ONLY)
+
 add_subdirectory(ch1)
 add_subdirectory(ch2)
 add_subdirectory(ch3)
@@ -16,3 +20,4 @@ add_subdirectory(ch10)
 add_subdirectory(ch11)
 add_subdirectory(ch12)
 add_subdirectory(ch13)
+add_subdirectory(ch14)

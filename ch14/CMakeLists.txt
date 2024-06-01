@@ -1,0 +1,2 @@
+add_executable(news_sender news_sender.cpp)
+add_executable(news_receiver news_receiver.cpp)
