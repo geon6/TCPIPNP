@@ -3,36 +3,43 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string_view>
+
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 30
+#include <fmt/format.h>
 
-void error_handling(const char *message);
+constexpr int BUF_SIZE = 30;
 
-int main(int argc, char *argv[]) {
+void error_handling(std::string_view msg);
+
+int main(int argc, char* argv[]) {
 
     if (argc == 2) {
-        printf("Usage: %s <port>\n", argv[0]);
+        fmt::println("Usage: {} <port>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sock == -1) 
+    if (sock == -1) {
         error_handling("socket() error");
+    }
     
-    sockaddr_in my_adr;
-    memset(&my_adr, 0, sizeof(my_adr));
-    my_adr.sin_family = AF_INET;
-    my_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-    my_adr.sin_port = htons(atoi(argv[1]));
+    struct sockaddr_in my_adr{
+        .sin_family = AF_INET,
+        .sin_port = htons(atoi(argv[1])),
+        .sin_addr = in_addr{htonl(INADDR_ANY)},
+        .sin_zero = {0}
+    };
 
-    if (bind(sock, reinterpret_cast<sockaddr*>(&my_adr), sizeof(my_adr)) == -1) 
+    if (bind(sock, reinterpret_cast<sockaddr*>(&my_adr), sizeof(my_adr)) == -1) {
         error_handling("bind() error");
+    }
 
-    sockaddr_in your_adr;
+    struct sockaddr_in your_adr;
     char message[BUF_SIZE];
     socklen_t adr_sz;
     int str_len;
@@ -41,12 +48,12 @@ int main(int argc, char *argv[]) {
         adr_sz = sizeof(your_adr);
         str_len = recvfrom(sock, message, BUF_SIZE, 0, 
             reinterpret_cast<sockaddr*>(&your_adr), &adr_sz);
-        printf("Message: %d: %s\n", i + 1, message);
+        fmt::println("Message: {}: {}", i + 1, message);
     }
     close(sock);
 }
 
-void error_handling(const char *message) {
-    perror(message);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }

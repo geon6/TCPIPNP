@@ -3,30 +3,36 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string_view>
+
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 30
+#include <fmt/format.h>
 
-void error_handling(const char *message);
+constexpr int BUF_SIZE = 30;
 
-int main(int argc, char *argv[]) {
+void error_handling(std::string_view msg);
+
+int main(int argc, char* argv[]) {
     if (argc != 3) {
-        printf("Usage: %s <ip> <port>\n", argv[0]);
+        fmt::println("Usage: {} <ip> <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     int sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if (sock == -1) 
+    if (sock == -1) {
         error_handling("socket() error");
+    }
     
-    sockaddr_in your_adr;
-    memset(&your_adr, 0, sizeof(your_adr));
-    your_adr.sin_family = AF_INET;
-    your_adr.sin_addr.s_addr = inet_addr(argv[1]);
-    your_adr.sin_port = htons(atoi(argv[2]));
+    struct sockaddr_in your_adr{
+        .sin_family = AF_INET,
+        .sin_port = htons(atoi(argv[2])),
+        .sin_addr = in_addr{inet_addr(argv[1])},
+        .sin_zero = {0}
+    };
 
     char msg1[] = "Hi!", msg2[] = "I'm another UDP host!", msg3[] = "Nice to meet you";
     sendto(sock, msg1, sizeof(msg1), 0,
@@ -38,7 +44,7 @@ int main(int argc, char *argv[]) {
     close(sock);
 }
 
-void error_handling(const char *message) {
-    perror(message);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
