@@ -30,11 +30,10 @@ int main(int argc, char* argv[]) {
     if (bind(acpt_sock, (struct sockaddr*)&acpt_addr, sizeof(acpt_addr)) == -1) {
         error_handling("bind() error");
     }
-
     if (listen(acpt_sock, 5) == -1) {
         error_handling("listen() error");
     }
-    
+
     struct sockaddr_in recv_addr;
     socklen_t recv_addr_len = sizeof(recv_addr);
     int recv_sock = accept(acpt_sock, (struct sockaddr*)&recv_addr, &recv_addr_len);
@@ -48,12 +47,11 @@ int main(int argc, char* argv[]) {
         }
     }
     buf[str_len] = 0;
-    std::cout << "Buffering " << str_len << " bytes " << buf << std::endl;
+    std::cout << "Buffering " << str_len << " bytes: " << buf << std::endl;
 
     str_len = recv(recv_sock, buf, sizeof(buf) - 1, 0);
     buf[str_len] = 0;
     std::cout << "Read again: " << buf << std::endl;
-
     close(acpt_sock);
     close(recv_sock);
 }
