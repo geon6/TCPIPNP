@@ -10,7 +10,7 @@
 
 void error_handling(std::string_view msg);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     int fd;
     const std::string str{"Let's go!\n"};
 

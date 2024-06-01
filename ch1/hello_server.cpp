@@ -10,7 +10,7 @@
 
 void error_handling(std::string_view msg);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc != 2) {
         fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);

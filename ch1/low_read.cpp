@@ -12,7 +12,7 @@ constexpr int BUF_SIZE = 100;
 
 void error_handling(std::string_view msg);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     int fd;
     std::string str(BUF_SIZE, '\0');
 
