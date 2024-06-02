@@ -6,12 +6,14 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#include <fmt/format.h>
+
 void read_childproc(int sig) {
     int status;
     pid_t id = waitpid(-1, &status, WNOHANG);
     if (WIFEXITED(status)) {
-        std::cout << "Removed proc id: " << id << std::endl;
-        std::cout << "Child send: " << WEXITSTATUS(status) << std::endl;
+        fmt::println("Removed proc id: {}", id);
+        fmt::println("Child send: {}", WEXITSTATUS(status));
     }
 }
 
@@ -25,20 +27,20 @@ int main(int argc, char* argv[]) {
 
     pid = fork();
     if (pid == 0) {
-        std::cout << "Hi! I'm child process" << std::endl;
+        fmt::println("Hi! I'm child process");
         sleep(10);
         return 12;
     } else {
-        std::cout << "Child proc id: " << pid << std::endl;
+        fmt::println("Child proc id: {}", pid);
         pid = fork();
         if (pid == 0) {
-            std::cout << "Hi! I'm child process" << std::endl;
+            fmt::println("Hi! I'm child process");
             sleep(10);
             exit(24);
         } else {
-            std::cout << "Child proc id: " << pid << std::endl;
+            fmt::println("Child proc id: {}", pid);
             for (int i = 0; i < 5; i++) {
-                std::cout << "wait..." << std::endl;
+                fmt::println("wait...");
                 sleep(5);
             }
         }

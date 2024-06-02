@@ -1,11 +1,15 @@
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <string_view>
 
 #include <unistd.h>
 #include <sys/socket.h>
 
-void error_handling(const char* message) {
-    perror(message);
+#include <fmt/format.h>
+
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
@@ -18,12 +22,14 @@ int main(int argc, char* argv[]) {
     printf("SOCK_DGRAM: %d\n", SOCK_DGRAM);
 
     int state = getsockopt(tcp_sock, SOL_SOCKET, SO_TYPE, (void*)&sock_type, &optlen);
-    if (state)
+    if (state) {
         error_handling("getsockopt() error");
-    printf("Socket type one: %d\n", sock_type);
+    }
+    fmt::println("Socket type one: {}", sock_type);
 
     state = getsockopt(udp_sock, SOL_SOCKET, SO_TYPE, (void*)&sock_type, &optlen);
-    if (state) 
+    if (state) {
         error_handling("getsockopt() error");
-    printf("Socket type two: %d\n", sock_type);
+    }
+    fmt::println("Socket type two: {}", sock_type);
 }

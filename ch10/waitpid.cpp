@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include <fmt/format.h>
+
 using namespace std::literals;
 
 int main(int argc, char* argv[]) {
@@ -18,10 +20,10 @@ int main(int argc, char* argv[]) {
     } else {
         while (!waitpid(-1, &status, WNOHANG)) {
             std::this_thread::sleep_for(3s);
-            std::cout << "sleep 3sec." << std::endl;
+            fmt::println("sleep 3sec.");
         }
         if (WIFEXITED(status)) {
-            std::cout << "Child send: " << WEXITSTATUS(status) << std::endl;
+            fmt::println("Child send: {}", WEXITSTATUS(status));
         }
     }
 }

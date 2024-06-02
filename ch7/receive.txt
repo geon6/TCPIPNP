@@ -1,33 +1,38 @@
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <string_view>
+
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <fmt/format.h>
 
-#define BUF_SIZE 30
+constexpr int BUF_SIZE = 30;
 
-void error_handling(const char* message) {
-    perror(message);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        printf("Usage: %s <port>\n", argv[0]);
+        fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     FILE* fp = fopen("./ch7/file_server.cpp", "rb");
     int serv_sd = socket(PF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in serv_adr;
-    memset(&serv_adr, 0, sizeof(serv_adr));
-    serv_adr.sin_family = AF_INET;
-    serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_adr.sin_port = htons(atoi(argv[1]));
+    struct sockaddr_in serv_adr{
+        .sin_family = AF_INET,
+        .sin_port = htons(atoi(argv[1])),
+        .sin_addr = in_addr{htonl(INADDR_ANY)},
+        .sin_zero = {0}
+    };
 
     bind(serv_sd, reinterpret_cast<sockaddr*>(&serv_adr), sizeof(serv_adr));
     listen(serv_sd, 5);
@@ -49,7 +54,7 @@ int main(int argc, char* argv[]) {
 
     shutdown(clnt_sd, SHUT_WR);
     read(clnt_sd, buf, BUF_SIZE);
-    printf("Message from client: %s\n", buf);
+    fmt::println("Message from client: {}", buf);
 
     fclose(fp);
     close(clnt_sd);

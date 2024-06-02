@@ -1,43 +1,50 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+#include <string_view>
 
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-void error_handling(const char* message) {
-    perror(message);
+#include <fmt/format.h>
+
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        printf("Usage: %s <port>\n", argv[0]);
+        fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     int serv_sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (serv_sock == -1) 
+    if (serv_sock == -1) {
         error_handling("socket() error");
+    }
     
     int option;
     socklen_t optlen = sizeof(option);
     option = 1;
     setsockopt(serv_sock, SOL_SOCKET, SO_REUSEADDR, (void*)&option, optlen);
 
-    sockaddr_in serv_adr;
+    struct sockaddr_in serv_adr;
     memset(&serv_adr, 0, sizeof(serv_adr));
     serv_adr.sin_family = AF_INET;
     serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_adr.sin_port = htons(atoi(argv[1]));
 
-    if (bind(serv_sock, reinterpret_cast<sockaddr*>(&serv_adr), sizeof(serv_adr)) == -1)
+    if (bind(serv_sock, reinterpret_cast<sockaddr*>(&serv_adr), sizeof(serv_adr)) == -1) {
         error_handling("bind() error");
-    if (listen(serv_sock, 5) == -1)
+    }
+    if (listen(serv_sock, 5) == -1) {
         error_handling("listen() error");
+    }
     
-    sockaddr_in clnt_adr;
+    struct sockaddr_in clnt_adr;
     socklen_t clnt_adr_sz = sizeof(clnt_adr);
     int clnt_sock = accept(serv_sock, reinterpret_cast<sockaddr*>(&clnt_adr), &clnt_adr_sz);
 

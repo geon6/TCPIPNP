@@ -4,9 +4,11 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include <fmt/format.h>
+
 void timeout(int sig) {
     if (sig == SIGALRM) {
-        std::cout << "Time out!" << std::endl;
+        fmt::println("Time out!");
     }
     alarm(2);
 }
@@ -21,7 +23,7 @@ int main(int argc, char* argv[]) {
     alarm(2);
 
     for (int i = 0; i < 3; i++) {
-        std::cout << "wait..." << std::endl;
+        fmt::println("wait...");
         sleep(100);
     }
 }

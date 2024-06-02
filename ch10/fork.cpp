@@ -2,6 +2,8 @@
 
 #include <unistd.h>
 
+#include <fmt/format.h>
+
 int gval = 10;
 int main(int argc, char* argv[]) {
     pid_t pid;
@@ -16,8 +18,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (pid == 0) {
-        printf("Child Proc: [%d, %d]\n", gval, lval);
+        fmt::println("Child Proc: [{}, {}]", gval, lval);
     } else {
-        printf("Parent Proc: [%d, %d]\n", gval, lval);
+        fmt::println("Parent Proc: [{}, {}]", gval, lval);
     }
 }
