@@ -1,32 +1,37 @@
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <string_view>
+
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <fmt/format.h>
 
-#define BUF_SIZE 30
+constexpr int BUF_SIZE = 30;
 
-void error_handling(const char* message) {
-    perror(message);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        printf("Usage: %s <ip> <port>\n", argv[0]);
+        fmt::println("Usage: {} <ip> <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
     FILE* fp = fopen("./ch7/receive.txt", "wb");
     int sd = socket(PF_INET, SOCK_STREAM, 0);
 
-    sockaddr_in serv_adr;
-    memset(&serv_adr, 0, sizeof(serv_adr));
-    serv_adr.sin_family = AF_INET;
-    serv_adr.sin_addr.s_addr = inet_addr(argv[1]);
-    serv_adr.sin_port = htons(atoi(argv[2]));
+    struct sockaddr_in serv_adr{
+        .sin_family = AF_INET,
+        .sin_port = htons(atoi(argv[2])),
+        .sin_addr = in_addr{inet_addr(argv[1])},
+        .sin_zero = {0}
+    };
 
     connect(sd, reinterpret_cast<sockaddr*>(&serv_adr), sizeof(serv_adr));
 
@@ -35,7 +40,7 @@ int main(int argc, char* argv[]) {
     while ((read_cnt = read(sd, buf, BUF_SIZE)) != 0) {
         fwrite((void*)buf, 1, read_cnt, fp);
     }
-    puts("Received file data");
+    fmt::println("Received file data");
     write(sd, "Thank you", 10);
     fclose(fp);
     close(sd);
