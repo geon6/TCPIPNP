@@ -3,6 +3,8 @@
 
 #include <sys/uio.h>
 
+#include <fmt/format.h>
+
 int main(int argc, char* argv[]) {
     struct iovec vec[2];
     char buf1[] = "ABCDEFG";
@@ -13,5 +15,5 @@ int main(int argc, char* argv[]) {
     vec[1].iov_len = 4;
 
     int str_len = writev(1, vec, 2);
-    std::cout << std::endl << "Write bytes: " << str_len << std::endl;
+    fmt::println("Write bytes: {}", str_len);
 }

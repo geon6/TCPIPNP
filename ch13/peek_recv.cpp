@@ -2,30 +2,34 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 30
+#include <fmt/format.h>
 
-void error_handling(const char* msg) {
-    perror(msg);
+constexpr int BUF_SIZE = 30;
+
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        std::cout << "Usage: " << argv[0] << " <port>" << std::endl;
+        fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     int acpt_sock = socket(PF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in acpt_addr;
-    memset(&acpt_addr, 0, sizeof(acpt_addr));
-    acpt_addr.sin_family = AF_INET;
-    acpt_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    acpt_addr.sin_port = htons(atoi(argv[1]));
+    struct sockaddr_in acpt_addr{
+        .sin_family{AF_INET},
+        .sin_port{htons(atoi(argv[1]))},
+        .sin_addr{in_addr{htonl(INADDR_ANY)}}
+    };
 
     if (bind(acpt_sock, (struct sockaddr*)&acpt_addr, sizeof(acpt_addr)) == -1) {
         error_handling("bind() error");
@@ -47,11 +51,11 @@ int main(int argc, char* argv[]) {
         }
     }
     buf[str_len] = 0;
-    std::cout << "Buffering " << str_len << " bytes: " << buf << std::endl;
+    fmt::println("Buffering {} bytes", buf);
 
     str_len = recv(recv_sock, buf, sizeof(buf) - 1, 0);
     buf[str_len] = 0;
-    std::cout << "Read again: " << buf << std::endl;
+    fmt::println("Read again: {}", buf);
     close(acpt_sock);
     close(recv_sock);
 }

@@ -3,7 +3,9 @@
 
 #include <sys/uio.h>
 
-#define BUF_SIZE 100
+#include <fmt/format.h>
+
+constexpr int BUF_SIZE = 100;
 
 int main(int argc, char* argv[]) {
     struct iovec vec[2];
@@ -17,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     int str_len = readv(0, vec, 2);
 
-    std::cout << "Read bytes: " << str_len << std::endl;
-    std::cout << "First message: " << buf1 << std::endl;
-    std::cout << "Second message: " << buf2 << std::endl;
+    fmt::println("Read bytes: {}", str_len);
+    fmt::println("First message: {}", buf1);
+    fmt::println("Second message: {}", buf2);
 }

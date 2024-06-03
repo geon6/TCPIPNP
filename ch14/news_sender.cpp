@@ -9,8 +9,8 @@
 
 #include <fmt/format.h>
 
-const int TTL = 64;
-const int BUF_SIZE = 30;
+constexpr int TTL = 64;
+constexpr int BUF_SIZE = 30;
 
 void error_handling(const char* msg);
 
