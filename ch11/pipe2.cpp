@@ -5,7 +5,9 @@
 
 #include <unistd.h>
 
-#define BUF_SIZE 30
+#include <fmt/format.h>
+
+constexpr int BUF_SIZE = 30;
 
 int main(int argc, char* argv[]) {
     std::string str1{"Who are you?"};
@@ -20,10 +22,10 @@ int main(int argc, char* argv[]) {
         write(fds[1], str1.data(), str1.size() + 1);
         sleep(2);
         read(fds[0], buf, BUF_SIZE);
-        std::cout << "Child proc output: " << buf << std::endl;
+        fmt::println("Child proc output: ");
     } else {
         read(fds[0], buf, BUF_SIZE);
-        std::cout << "Parent proc output: " << buf << std::endl;
+        fmt::println("Parent proc output: {}", buf);
         write(fds[1], str2.data(), str2.size() + 1);
         sleep(3);
     }

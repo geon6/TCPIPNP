@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 #include <unistd.h>
 #include <signal.h>
@@ -9,8 +11,11 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUF_SIZE 30
-void error_handling(const char* msg);
+#include <fmt/format.h>
+
+constexpr int BUF_SIZE = 30;
+
+void error_handling(std::string_view msg);
 void read_childproc(int sig);
 
 int main(int argc, char* argv[]) {
@@ -24,7 +29,7 @@ int main(int argc, char* argv[]) {
     char buf[BUF_SIZE];
 
     if (argc != 2) {
-        std::cout << "Usage: " << argv[0] << " <port>" << std::endl;        
+        fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -39,11 +44,12 @@ int main(int argc, char* argv[]) {
     serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_adr.sin_port = htons(atoi(argv[1]));
 
-    if (bind(serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1)
+    if (bind(serv_sock, (struct sockaddr*)&serv_adr, sizeof(serv_adr)) == -1) {
         error_handling("bind() error");
-
-    if (listen(serv_sock, 5) == -1)
+    }
+    if (listen(serv_sock, 5) == -1) {
         error_handling("listen() error");
+    }
     
     pipe(fds);
     pid = fork();
@@ -62,10 +68,11 @@ int main(int argc, char* argv[]) {
     while (1) {
         adr_sz = sizeof(clnt_adr);
         clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
-        if (clnt_sock == -1)
+        if (clnt_sock == -1) {
             continue;
-        else
-            std::cout << "new client connected..." << std::endl;
+        } else {
+            fmt::println("new client connected...");
+        }
         
         pid = fork();
         if (pid == 0) {
@@ -75,7 +82,7 @@ int main(int argc, char* argv[]) {
                 write(fds[1], buf, str_len);
             }
             close(clnt_sock);
-            std::cout << "client disconnected..." << std::endl;
+            fmt::println("client disconnected...");
             return 0;
         } else {
             close(clnt_sock);
@@ -84,8 +91,8 @@ int main(int argc, char* argv[]) {
     close(serv_sock);
 }
 
-void error_handling(const char* message) {
-    perror(message);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }
 
@@ -93,7 +100,7 @@ void read_childproc(int sig) {
     int status;
     pid_t id = waitpid(-1, &status, WNOHANG);
     if (WIFEXITED(status)) {
-        std::cout << "Removed proc id: " << id << std::endl;
-        std::cout << "Child send: " << WEXITSTATUS(status) << std::endl;
+        fmt::println("Removed proc id: {}", id);
+        fmt::println("Child send: {}", WEXITSTATUS(status));
     }
 }

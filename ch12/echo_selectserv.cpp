@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -10,13 +12,15 @@
 #include <sys/time.h>
 #include <sys/select.h>
 
-#define BUF_SIZE 100
+#include <fmt/format.h>
 
-void error_handling(const char* msg);
+constexpr int BUF_SIZE = 100;
+
+void error_handling(std::string_view msg);
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        std::cout << "Usage: " << argv[0] << " <port>" << std::endl;
+        fmt::println("Usage: {} <port>", argv[0]);
         exit(EXIT_FAILURE);
     }
 
@@ -25,11 +29,12 @@ int main(int argc, char* argv[]) {
         error_handling("socket() error");
     }
 
-    struct sockaddr_in server_address;
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_address.sin_port = htons(atoi(argv[1]));
+    struct sockaddr_in server_address{
+        sin_family: AF_INET,
+        sin_port: htons(atoi(argv[1])),
+        sin_addr: in_addr{htonl(INADDR_ANY)},
+        sin_zero: {0}
+    };
 
     if (bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) {
         error_handling("bind() error");
@@ -70,13 +75,13 @@ int main(int argc, char* argv[]) {
                 }
                 FD_SET(client_socket, &read_set);
                 fd_max = std::max(fd_max, client_socket);
-                std::cout << "new client: " << client_socket << std::endl;
+                fmt::println("new client: {}", client_socket);
             } else {
                 int len = read(i, buf, BUF_SIZE);
                 if (len == 0) {
                     FD_CLR(i, &read_set);
                     close(i);
-                    std::cout << "close client: " << i << std::endl;
+                    fmt::println("close client: {}", i);
                 } else {
                     write(i, buf, len);
                 }
@@ -86,7 +91,7 @@ int main(int argc, char* argv[]) {
     close(server_socket);
 }
 
-void error_handling(const char* msg) {
-    perror(msg);
+void error_handling(std::string_view msg) {
+    perror(msg.data());
     exit(EXIT_FAILURE);
 }

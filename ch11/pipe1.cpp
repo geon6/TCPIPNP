@@ -3,7 +3,9 @@
 
 #include <unistd.h>
 
-#define BUF_SIZE 30
+#include <fmt/format.h>
+
+constexpr int BUF_SIZE = 30;
 
 int main(int argc, char* argv[]) {
     int fds[2];
@@ -17,6 +19,6 @@ int main(int argc, char* argv[]) {
         write(fds[1], str, sizeof(str));
     } else {
         read(fds[0], buf, BUF_SIZE);
-        std::cout << buf << std::endl;
+        fmt::println(buf);
     }
 }
