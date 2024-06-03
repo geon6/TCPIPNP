@@ -1,0 +1,5 @@
+add_executable(syscpy syscpy.cpp)
+add_executable(stdcpy stdcpy.cpp)
+add_executable(stdcpy2 stdcpy2.cpp)
+add_executable(echo_stdserv echo_stdserv.cpp)
+add_executable(echo_client echo_client.cpp)

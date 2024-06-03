@@ -54,3 +54,44 @@ int listen(int fd, int n);
 ```
 int accept(int fd, struct sockaddr *addr, socklen_t *addr_len);
 ```
+
+
+## 关于designated initializers
+对于以下struct: 
+```c++
+struct Example {
+    int counts;
+    char alpha;
+    double score;
+};
+```
+在c语言中, 可以乱序初始化
+```c
+struct Example example{
+    .score = 1.2,
+    .counts = 10,
+    .alpha = 'u'
+};
+```
+但是c++中, 必须按顺序
+```c++
+Example example{
+    .counts{10},
+    .alpha{'q'},
+    .score{1.9}
+};
+```
+
+还有另外的区别: 对于`struct sockaddr_in`
+c语言可以嵌套地对`sin_addr`初始化:
+```
+struct sockaddr_in adr{
+    .sin_addr.s_addr = htonl(INADDR_ANY)
+};
+```
+c++中则不能用嵌套初始化, 可以用如下方式
+```
+sockaddr_in adr{
+    .sin_addr{in_addr{htonl(INADDR_ANY)}}
+}
+```
