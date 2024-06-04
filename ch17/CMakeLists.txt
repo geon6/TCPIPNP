@@ -1,0 +1,3 @@
+add_executable(echo_epollserv echo_epollserv.cpp)
+add_executable(echo_epltserv echo_epltserv.cpp)
+add_executable(echo_epetserv echo_epetserv.cpp)
