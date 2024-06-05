@@ -37,7 +37,8 @@ int main(int argc, char* argv[]) {
         .sin_addr = in_addr{htonl(INADDR_ANY)}
     };
 
-    if (bind(server_socket, (sockaddr*)&server_address, sizeof(server_address)) == -1) {
+    if (bind(server_socket, (sockaddr*)&server_address, 
+                sizeof(server_address)) == -1) {
         error_handling("bind() error");
     }
     if (listen(server_socket, 5) == -1) {
@@ -63,7 +64,8 @@ int main(int argc, char* argv[]) {
             if (fd == server_socket) {
                 sockaddr_in client_address;
                 socklen_t client_address_len = sizeof(client_address);
-                int client_socket = accept(server_socket, (sockaddr*)&client_address, &client_address_len);
+                int client_socket = accept(server_socket, 
+                        (sockaddr*)&client_address, &client_address_len);
                 event.events = EPOLLIN;
                 event.data.fd = client_socket;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &event);
