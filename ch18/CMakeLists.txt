@@ -10,3 +10,12 @@ target_compile_definitions(thread4 PUBLIC _REENTRANT)
 
 add_executable(mutex mutex.cpp)
 target_compile_definitions(mutex PUBLIC _REENTRANT)
+
+add_executable(semaphore semaphore.cpp)
+target_compile_definitions(semaphore PUBLIC _REENTRANT)
+
+add_executable(chat_server chat_server.cpp)
+target_compile_definitions(chat_server PUBLIC _REENTRANT)
+
+add_executable(chat_client chat_client.cpp)
+target_compile_definitions(chat_client PUBLIC _REENTRANT)
