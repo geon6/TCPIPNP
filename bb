@@ -1,2 +1,2 @@
-cmake -B build
-cmake --build build --parallel 4
+cmake -B build -G Ninja
+cmake --build build
